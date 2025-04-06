@@ -33,7 +33,7 @@
 <body>
 
     <!-- Header Section -->
-    <div class="container header">
+    <div class="container header" style="display:none;">
 
         <h1>Thesaurus</h1>
         <pronunciation>[ thi-<b>sawr</b>-<em>uhs</em> ]</pronunciation>
@@ -50,7 +50,7 @@
     <!-- Thesaurus Section -->
     <div class="container thesaurus" id="thesaurus-section">
         <div class="thesaurus-section">
-            <h1>Ask <bridge>The-saurus</bridge> <img src="img/t-rex_1f996.png"></h1>
+            <h1>Ask <bridge>The-saurus</bridge> <img class="dino" src="img/t-rex_1f996.png"></h1>
             <p>Enter a word to find synonyms, related terms, and more.</p>
 
             <div class="search-form">
@@ -124,7 +124,7 @@
 
     <!-- Footer Section -->
     <footer id="footer">
-        <div class="container">
+        <div class="footer">
             <div class="copyright">
                 <p>&copy;
                     <script>document.write(new Date().getFullYear())</script> ZingLab. All rights reserved.
@@ -137,7 +137,7 @@
 
     <!-- Datamuse Thesaurus Functionality -->
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             const wordInput = document.getElementById('word-input');
             const searchButton = document.getElementById('search-button');
             const resultsContainer = document.getElementById('results');
@@ -146,27 +146,32 @@
             // Function to search for synonyms using Datamuse API
             async function searchThesaurus(word) {
                 if (!word) return;
-
+                
                 // Show loader and hide header elements
                 loader.style.display = 'block';
                 document.querySelectorAll('.header').forEach(el => {
                     el.style.display = 'none';
                 });
                 resultsContainer.innerHTML = '';
-
+                
                 try {
                     // Get synonyms (words with similar meaning)
                     const synonymsResponse = await fetch(`https://api.datamuse.com/words?ml=${word}&max=20`);
                     const synonyms = await synonymsResponse.json();
-
+                    
                     // Get related words
                     const relatedResponse = await fetch(`https://api.datamuse.com/words?rel_trg=${word}&max=15`);
                     const related = await relatedResponse.json();
-
+                    
+                    // Get antonyms (opposite words)
+                    const antonymsResponse = await fetch(`https://api.datamuse.com/words?rel_ant=${word}&max=10`);
+                    const antonyms = await antonymsResponse.json();
+                    
                     // Display results
                     displayResults({
                         synonyms,
-                        related
+                        related,
+                        antonyms
                     });
                 } catch (error) {
                     resultsContainer.innerHTML = `<p>Error: ${error.message}</p>`;
@@ -175,66 +180,71 @@
                     loader.style.display = 'none';
                 }
             }
-
+            
             // Function to display results
             function displayResults(data) {
-                if (!data.synonyms.length && !data.related.length) {
-                    resultsContainer.innerHTML = '<p>No results found. Try another word.</p>';
+                if (!data.synonyms.length && !data.related.length && !data.antonyms.length) {
+                    resultsContainer.innerHTML = '<p>No results found.</p> <img class="duck" src="img/duck_1f986.png">';
                     return;
                 }
-
+                
                 let html = '';
-
+                
                 // Display synonyms
                 if (data.synonyms.length) {
-                    html += createCategoryHTML('Synonyms & Similar Meanings', data.synonyms);
+                    html += createCategoryHTML('Synonyms <img class="dino" src="img/t-rex_1f996-2.png">', data.synonyms);
                 }
-
+                
+                // Display antonyms
+                if (data.antonyms.length) {
+                    html += createCategoryHTML('Antonyms <img class="dino" src="img/sauropod_1f995.png">', data.antonyms);
+                }
+                
                 // Display related words
                 if (data.related.length) {
-                    html += createCategoryHTML('Related Words', data.related);
+                    html += createCategoryHTML('Related Words <img class="dino" src="img/black-bird_1f426-200d-2b1b.png">', data.related);
                 }
-
+                
                 resultsContainer.innerHTML = html;
-
+                
                 // Add click event to words for easy searching
                 document.querySelectorAll('.word-item').forEach(item => {
-                    item.addEventListener('click', function () {
+                    item.addEventListener('click', function() {
                         const word = this.textContent;
                         wordInput.value = word;
                         searchThesaurus(word);
                     });
                 });
             }
-
+            
             // Helper function to create HTML for a category of results
             function createCategoryHTML(title, words) {
                 if (!words.length) return '';
-
+                
                 let html = `<div class="result-category">
                     <h3>${title}</h3>
                     <div class="word-list">`;
-
+                
                 words.forEach(wordObj => {
                     html += `<div class="word-item">${wordObj.word}</div>`;
                 });
-
+                
                 html += `</div></div>`;
-
+                
                 return html;
             }
-
+            
             // Event listeners
-            searchButton.addEventListener('click', function () {
+            searchButton.addEventListener('click', function() {
                 searchThesaurus(wordInput.value.trim());
             });
-
-            wordInput.addEventListener('keypress', function (e) {
+            
+            wordInput.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
                     searchThesaurus(wordInput.value.trim());
                 }
             });
-
+            
             // Initialize with a placeholder example if desired
             // searchThesaurus('example');
         });
