@@ -164,8 +164,17 @@
                     const related = await relatedResponse.json();
                     
                     // Get antonyms (opposite words)
-                    const antonymsResponse = await fetch(`https://api.datamuse.com/words?rel_ant=${word}&max=10`);
-                    const antonyms = await antonymsResponse.json();
+                    // Some words might not have antonyms in the database
+                    let antonyms = [];
+                    try {
+                        const antonymsResponse = await fetch(`https://api.datamuse.com/words?rel_ant=${word}&max=10`);
+                        console.log('Antonyms response status:', antonymsResponse.status);
+                        antonyms = await antonymsResponse.json();
+                        console.log('Antonyms found:', antonyms.length);
+                    } catch (antError) {
+                        console.error('Error fetching antonyms:', antError);
+                        // Continue with empty antonyms array
+                    }
                     
                     // Display results
                     displayResults({
@@ -183,6 +192,11 @@
             
             // Function to display results
             function displayResults(data) {
+                // Make sure data properties exist and have length property
+                const synonyms = data.synonyms || [];
+                const related = data.related || [];
+                const antonyms = data.antonyms || [];
+                
                 if (!data.synonyms.length && !data.related.length && !data.antonyms.length) {
                     resultsContainer.innerHTML = '<p>No results found.</p> <img class="duck" src="img/duck_1f986.png">';
                     return;
