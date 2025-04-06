@@ -35,6 +35,10 @@ ol {
 pronunciation {
     display: block;
 }
+p {
+    margin-bottom: 20px;
+    font-size: .8em;
+}
 
 /* Container for content */
 .container {
@@ -44,7 +48,16 @@ pronunciation {
 }
 
 .article {
-    padding-top: 70%;
+    padding-top: 500px;
+}
+em.subtle-text {
+    color: #aaa; /* Subtle text color for em elements */
+    font-size: 0.8em;
+    margin-bottom: 20px;
+    display: block;
+}
+.header {
+    display: none;
 }
 
 /* Header styles */
