@@ -43,36 +43,216 @@
 
 <body>
 
+    <!-- Header Section -->
+    <div class="container header">
+
+        <h1>Thesaurus</h1>
+        <pronunciation>[ thi-<b>sawr</b>-<em>uhs</em> ]</pronunciation>
+        <pronunciation style="font-size:1.2em"><b>noun</b></pronunciation>
+        <pronunciation style="color: bisque;">Plural: <em>thesauruses, thesauri</em></pronunciation>
+        <ol>
+            <li>a dictionary of synonyms and antonyms, such as <a href="https://thesaurusonline.org/"
+                    target="_blank">ThesaurusOnline.org</a>.</li>
+        </ol>
+
+    </div>
+
+
+    <!-- Thesaurus Section -->
+    <div class="container thesaurus" id="thesaurus-section">
+        <div class="thesaurus-section">
+            <h1>Ask <bridge>The-saurus</bridge> <img src="img/t-rex_1f996.png"></h1>
+            <p>Enter a word to find synonyms, related terms, and more.</p>
+
+            <div class="search-form">
+                <input type="text" id="word-input" placeholder="Enter a word...">
+                <button id="search-button">Search</button>
+            </div>
+
+            <div id="loader" class="loader"></div>
+
+            <div id="results" class="results-container"></div>
+        </div>
+    </div>
+
+
     <!-- Story Section -->
     <div class="container">
-                <div class="header">
-                    <h1>Thesaurus</h1>
-                    <span>[ thi-<b>sawr</b>-<em>uhs</em> ]</span>
-                    <span style="font-size:1.8em"><b>noun</b></span>
-                    <span style="color: bisque;">Plural: <em>thesauruses, thesauri</em></span>
-                <ol>
-                <li>a dictionary of synonyms and antonyms, such as <a href="https://thesaurusonline.org/" target="_blank">ThesaurusOnline.org</a>.</li>
-                </ol>
-                </div>
+        <div class="article">
+            <h2>The Legacy of Words: A History of the Thesaurus</h2>
+            <p>In the dimly lit study of a Scottish physician named Peter Mark Roget, the year 1805 marked the beginning
+                of a quiet revolution in the landscape of language. Roget, troubled by his own bouts of depression and
+                seeking solace in the organization of ideas, began meticulously categorizing words into groups based on
+                their meanings rather than alphabetically. What started as a personal coping mechanism would eventually
+                blossom into one of the most influential reference works in the English language: Roget's Thesaurus,
+                published in 1852 when its creator was already 73 years old. The original work, titled "Thesaurus of
+                English Words and Phrases Classified and Arranged so as to Facilitate the Expression of Ideas and Assist
+                in Literary Composition," contained approximately 15,000 words organized into six primary classes:
+                abstract relations, space, matter, intellect, volition, and affections. Unlike dictionaries of the time
+                that defined words, Roget's innovation connected them through conceptual relationships, creating a map
+                of language that revealed the rich tapestry of synonyms and related ideas.</p>
+            <p>The concept of a thesaurus wasn't entirely without precedent—ancient civilizations had created
+                rudimentary synonym lists, and Sanskrit scholars had developed the Amarakosha, a thesaurus-like work,
+                centuries earlier. But Roget's comprehensive approach revolutionized how writers and thinkers could
+                navigate language. His work drew inspiration from Linnaeus's biological classifications and
+                philosophical attempts to categorize all human knowledge, reflecting Enlightenment ideals of rational
+                organization. As the thesaurus gained popularity throughout the Victorian era and beyond, it became an
+                indispensable tool for poets, novelists, orators, and students alike. Unlike a dictionary that told you
+                what words meant, a thesaurus helped you find precisely the right word for your intended meaning—a
+                subtle but transformative distinction that changed how people approached composition and communication.
+            </p>
+            <p>While the physical form of the thesaurus has evolved from Roget's original manuscript to bound volumes,
+                pocket editions, and eventually digital interfaces, its fundamental purpose has remained steadfast: to
+                provide alternatives, to suggest nuance, to rescue writers from the frustration of the word that sits at
+                the tip of the tongue but refuses to materialize. In creative writing classes and newspaper offices,
+                beside typewriters and within word processors, the thesaurus has served as both lifeline and launching
+                pad. It has helped fumbling students articulate complex ideas, given advertising copywriters the perfect
+                slogan, and provided diplomats with carefully calibrated language for delicate negotiations. Each
+                edition builds upon the previous, reflecting the ever-changing nature of language itself—adding
+                neologisms, retiring archaic terms, and adjusting to shifts in usage and meaning. For many professional
+                writers, the relationship with their thesaurus is deeply personal; some credit it with rescuing them
+                from writer's block, while others caution against overreliance that might lead to awkward, unnatural
+                prose peppered with words chosen for impressiveness rather than precision.</p>
+            <p>In today's digital landscape, the thesaurus has transcended its physical form to become an integrated
+                feature of word processing software, writing apps, and online platforms—accessible with a right-click or
+                keyboard shortcut. This democratization of linguistic resources has fundamentally changed our
+                relationship with language, allowing instant access to a universe of alternative expressions. While some
+                language purists lament that this ease of access might diminish the thoughtful consideration once
+                required to select the perfect word, others celebrate how it has empowered writers from all backgrounds
+                to elevate their communication. Meanwhile, computational linguists and AI developers study thesauri to
+                understand semantic relationships and build natural language processing systems, extracting patterns
+                that help machines comprehend the subtle differences between "shimmer," "gleam," "glisten," and
+                "sparkle." As language continues to evolve in the digital age, the thesaurus represents a fascinating
+                intersection of tradition and innovation—a bridge between centuries of linguistic heritage and the
+                algorithmic future of communication, proving that Roget's organizational impulse has found relevance far
+                beyond what the melancholy Scottish doctor could have ever imagined when he first began categorizing
+                words to soothe his troubled mind.</p>
+        </div>
     </div>
 
 
 
+    <!-- Datamuse Thesaurus Functionality -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const wordInput = document.getElementById('word-input');
+            const searchButton = document.getElementById('search-button');
+            const resultsContainer = document.getElementById('results');
+            const loader = document.getElementById('loader');
+
+            // Function to search for synonyms using Datamuse API
+            async function searchThesaurus(word) {
+                if (!word) return;
+
+                // Show loader and hide header elements
+                loader.style.display = 'block';
+                document.querySelectorAll('.header').forEach(el => {
+                    el.style.display = 'none';
+                });
+                resultsContainer.innerHTML = '';
+
+                try {
+                    // Get synonyms (words with similar meaning)
+                    const synonymsResponse = await fetch(`https://api.datamuse.com/words?ml=${word}&max=20`);
+                    const synonyms = await synonymsResponse.json();
+
+                    // Get related words
+                    const relatedResponse = await fetch(`https://api.datamuse.com/words?rel_trg=${word}&max=15`);
+                    const related = await relatedResponse.json();
+
+                    // Display results
+                    displayResults({
+                        synonyms,
+                        related
+                    });
+                } catch (error) {
+                    resultsContainer.innerHTML = `<p>Error: ${error.message}</p>`;
+                } finally {
+                    // Hide loader
+                    loader.style.display = 'none';
+                }
+            }
+
+            // Function to display results
+            function displayResults(data) {
+                if (!data.synonyms.length && !data.related.length) {
+                    resultsContainer.innerHTML = '<p>No results found. Try another word.</p>';
+                    return;
+                }
+
+                let html = '';
+
+                // Display synonyms
+                if (data.synonyms.length) {
+                    html += createCategoryHTML('Synonyms & Similar Meanings', data.synonyms);
+                }
+
+                // Display related words
+                if (data.related.length) {
+                    html += createCategoryHTML('Related Words', data.related);
+                }
+
+                resultsContainer.innerHTML = html;
+
+                // Add click event to words for easy searching
+                document.querySelectorAll('.word-item').forEach(item => {
+                    item.addEventListener('click', function () {
+                        const word = this.textContent;
+                        wordInput.value = word;
+                        searchThesaurus(word);
+                    });
+                });
+            }
+
+            // Helper function to create HTML for a category of results
+            function createCategoryHTML(title, words) {
+                if (!words.length) return '';
+
+                let html = `<div class="result-category">
+                    <h3>${title}</h3>
+                    <div class="word-list">`;
+
+                words.forEach(wordObj => {
+                    html += `<div class="word-item">${wordObj.word}</div>`;
+                });
+
+                html += `</div></div>`;
+
+                return html;
+            }
+
+            // Event listeners
+            searchButton.addEventListener('click', function () {
+                searchThesaurus(wordInput.value.trim());
+            });
+
+            wordInput.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    searchThesaurus(wordInput.value.trim());
+                }
+            });
+
+            // Initialize with a placeholder example if desired
+            // searchThesaurus('example');
+        });
+    </script>
 
 
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-D8Z69EXXHV"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-D8Z69EXXHV');
-</script>
 
 
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-D8Z69EXXHV"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
 
-<!-- Site provided ad-free thanks to ZingLab.com -->
+        gtag('config', 'G-D8Z69EXXHV');
+    </script>
+
+
+
+    <!-- Site provided ad-free thanks to ZingLab.com -->
 
 
 </body>
